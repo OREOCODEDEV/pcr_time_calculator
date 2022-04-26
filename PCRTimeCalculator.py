@@ -1,3 +1,9 @@
+from hoshino import Service
+
+
+sv = Service("PCR补偿轴计算器")
+
+
 def time_converter(time):
     # 把PCR轴时间的 分:秒 格式转换为十进制的秒
     if not 0 <= time <= 130:
@@ -47,4 +53,10 @@ def handle_main(remain_time, origin_time_array):
     return ret
 
 
-print(handle_main("59", ["120", "130", "111", "110", "109", "105", "100", "50", "40", "30", "5"]))
+@sv.on_prefix("补偿轴")
+async def time_calculator(bot, ev):
+    message = ev.message.extract_plain_text()
+    # 过滤掉多余的空格
+    message = list(filter(lambda x: False if x is None or x == "" else True, message.split(" ")))
+    send_text = handle_main(message[0], message[1:])
+    await bot.send(ev, send_text)
