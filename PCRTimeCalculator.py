@@ -1,7 +1,9 @@
 from hoshino import Service
 
+help_use_str = "\n使用方法：补偿轴 [返还时间] [时间1] [时间2] ...\n例：补偿轴 121 118 110 107 105"
+help_str = "计算返还时间下对应的时间轴" + help_use_str
 
-sv = Service("PCR补偿轴计算器")
+sv = Service("补偿轴计算器", help_=help_str)
 
 
 def time_converter(time):
@@ -11,7 +13,7 @@ def time_converter(time):
     if 60 <= time <= 99:
         raise Exception("Time out of range")
     if time >= 100:
-        return -40 + time
+        return time - 40
     return time
 
 
@@ -28,7 +30,7 @@ def pretty_output(origin_time_array, new_time_array):
     # 对齐输出
     ret = ""
     for i, j in enumerate(origin_time_array):
-        ret += "\n%s  %s" % (j, new_time_array[i])
+        ret += "\n%s     %s" % (j, new_time_array[i])
     return ret
 
 
@@ -38,7 +40,7 @@ def handle_main(remain_time, origin_time_array):
         remain_time = int(remain_time)
         origin_time_array = list(map(int, origin_time_array))
     except:
-        return "转换时间轴时发生错误，请检查输入时间轴\n时间轴输入无需小数点，如1.03直接输入103即可"
+        return "转换时间轴时发生错误，请检查输入的时间轴\n时间轴无需输入小数点，如1.03直接输入103即可"
     try:
         # PCR时间轴的 分:秒 转为十进制的秒
         remain_time = time_converter(remain_time)
@@ -56,7 +58,13 @@ def handle_main(remain_time, origin_time_array):
 @sv.on_prefix("补偿轴")
 async def time_calculator(bot, ev):
     message = ev.message.extract_plain_text()
-    # 过滤掉多余的空格
-    message = list(filter(lambda x: False if x is None or x == "" else True, message.split(" ")))
+    message = list(filter(lambda x: False if x is None or x == "" else True, message.split(" ")))  # 过滤掉多余的空格
+    message = list(filter(lambda x: True if x.isdigit() else False, message))  # 去除非纯文本的时间轴
+    array_length = len(message)
+    if array_length <= 1:
+        await bot.finish(ev, "参数不足：请至少输入一个原始轴时间" + help_use_str)
+    if array_length >= 35:
+        # 长度限制,可视情况解除
+        await bot.finish(ev, "原始轴过长，请分开两次计算")
     send_text = handle_main(message[0], message[1:])
     await bot.send(ev, send_text)
