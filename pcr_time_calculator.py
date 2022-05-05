@@ -22,8 +22,8 @@ def pretty_time(time):
     if time <= 0:
         return "0:00"
     if time < 60:
-        return "0:%s" % (str(time) if time >= 10 else str("0" + str(time)))  # 补0
-    return "1:%s" % (str(time - 60) if time >= 70 else str("0" + str(time - 60)))
+        return ("0:%d" if time >= 10 else "0:0%d") % time
+    return ("1:%d" if time >= 70 else "1:0%d") % (time - 60)
 
 
 def pretty_output(origin_time_array, new_time_array):
@@ -46,7 +46,7 @@ def handle_main(remain_time, origin_time_array):
         return "时间超出范围，请检查输入时间轴\n请确保输入时间均在130-100及059-001之间"
     used_time = 90 - remain_time  # 计算已使用的时间
     new_time_array = list(map(lambda i: i - used_time, origin_time_array))  # 减去已使用的时间得到补偿时间轴
-    ret = "返还时间:%s\n" % pretty_time(remain_time)
+    ret = "返还时间%s\n" % pretty_time(remain_time)
     ret += "原始轴 补偿轴"
     ret += pretty_output(list(map(pretty_time, origin_time_array)), list(map(pretty_time, new_time_array)))
     return ret
