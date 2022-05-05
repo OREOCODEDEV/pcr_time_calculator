@@ -46,7 +46,7 @@ def handle_main(remain_time, origin_time_array):
         return "时间超出范围，请检查输入时间轴\n请确保输入时间均在130-100及059-001之间"
     used_time = 90 - remain_time  # 计算已使用的时间
     new_time_array = list(map(lambda i: i - used_time, origin_time_array))  # 减去已使用的时间得到补偿时间轴
-    ret = "补偿时间:%s\n" % pretty_time(remain_time)
+    ret = "返还时间:%s\n" % pretty_time(remain_time)
     ret += "原始轴 补偿轴"
     ret += pretty_output(list(map(pretty_time, origin_time_array)), list(map(pretty_time, new_time_array)))
     return ret
