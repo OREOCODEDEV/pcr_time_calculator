@@ -38,12 +38,9 @@ def handle_main(remain_time, origin_time_array):
     # 转为int型的 分:秒
     remain_time = int(remain_time)
     origin_time_array = list(map(int, origin_time_array))
-    try:
-        # PCR时间轴的 分:秒 转为十进制的秒
-        remain_time = time_converter(remain_time)
-        origin_time_array = list(map(time_converter, origin_time_array))
-    except:
-        return "时间超出范围，请检查输入时间轴\n请确保输入时间均在130-100及059-001之间"
+    # PCR时间轴的 分:秒 转为十进制的秒
+    remain_time = time_converter(remain_time)
+    origin_time_array = list(map(time_converter, origin_time_array))
     used_time = 90 - remain_time  # 计算已使用的时间
     new_time_array = list(map(lambda i: i - used_time, origin_time_array))  # 减去已使用的时间得到补偿时间轴
     ret = "返还时间%s\n" % pretty_time(remain_time)
@@ -67,5 +64,9 @@ async def time_calculator(bot, ev):
     if array_length >= 35:
         # 长度限制,可视情况解除
         await bot.finish(ev, "原始轴过长，请分开两次计算")
-    send_text = handle_main(message[0], message[1:])
-    await bot.send(ev, send_text)
+    send_text = ""
+    try:
+        send_text = handle_main(message[0], message[1:])
+    except ValueError:
+        await bot.finish(ev, "时间超出范围，请检查输入时间轴\n请确保输入时间均在130-100及059-001之间")
+    await bot.finish(ev, send_text)
